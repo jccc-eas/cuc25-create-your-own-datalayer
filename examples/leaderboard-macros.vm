@@ -1,0 +1,79 @@
+#macro ( renderLeaderboardBlock $asset $classes )
+#***
+    @param :: $asset    block
+    @param :: $classes  string
+    *#
+    #set ( $leaderboardYears = [] )
+    #set ( $leaderboardSortDirection = $_XPathTool.selectSingleNode($asset, "content/system-data-structure/settings/sort-direction").value )
+    #set ( $leaderboardSortCriteria = $_XPathTool.selectSingleNode($asset, "content/system-data-structure/settings/sort-criteria").value )
+    #set ( $apiBlockData = $_.locateBlock($asset.getChild('path').value, $asset.getChild('site').value) )
+    
+    ## casting values to appropriate types is important
+    ## sort tool will fail on mixed types and null values
+    #foreach ( $item in $_XPathTool.selectNodes($asset, "content/system-data-structure/class-gift") )
+        #set ( $_void = $leaderboardYears.add( {'year': $_MathTool.toNumber($item.getChild('year').value), 'amount': $_MathTool.toDouble($item.getChild('amount').value), 'participation': $_MathTool.toNumber($item.getChild('participation').value)} ) )
+    #end
+    ## $_SortTool.sort($leaderboardYears, ["participation:desc","amount:desc"])
+    <div class="${classes}">
+        <table class="leaderboard table" border="0">
+            <caption>Reunion Giving by Participation</caption>
+            <colgroup>
+                <col class="year" />
+                <col class="amount" />
+                <col class="participation" />
+            </colgroup>
+            <thead>
+                <tr>
+                    <th scope="col">Class Year</th>
+                    <th scope="col">Amount Raised</th>
+                    <th scope="col">Donors</th>
+                </tr>
+            </thead>
+            <tbody>
+                #if ( $leaderboardSortCriteria == "none" )
+                    #foreach ( $year in $leaderboardYears )
+                    #renderLeaderboardRow( $year )
+                    #end
+                #elseif ( $leaderboardSortCriteria == "year" )
+                    #if ( $leaderboardSortDirection == "desc" )
+                        #foreach ( $year in $_SortTool.sort($leaderboardYears, "year:desc") )
+                            #renderLeaderboardRow( $year )
+                        #end
+                    #else
+                        #foreach ( $year in $_SortTool.sort($leaderboardYears, "year:asc") )
+                            #renderLeaderboardRow( $year )
+                        #end
+                    #end
+                #elseif ( $leaderboardSortCriteria == "amount" )
+                    #if ( $leaderboardSortDirection == "desc" )
+                        #foreach ( $year in $_SortTool.sort($leaderboardYears, ["amount:desc", "participation:desc"]) )
+                            #renderLeaderboardRow( $year )
+                        #end
+                    #else
+                        #foreach ( $year in $_SortTool.sort($leaderboardYears, ["amount:asc", "participation:asc"]) )
+                            #renderLeaderboardRow( $year )
+                        #end
+                    #end
+                #elseif ( $leaderboardSortCriteria == "participation" )
+                    #if ( $leaderboardSortDirection == "desc" )
+                        #foreach ( $year in $_SortTool.sort($leaderboardYears, ["participation:desc", "amount:desc"]) )
+                            #renderLeaderboardRow( $year )
+                        #end
+                    #else
+                        #foreach ( $year in $_SortTool.sort($leaderboardYears, ["participation:asc", "amount:asc"]) )
+                            #renderLeaderboardRow( $year )
+                        #end
+                    #end
+                #end
+            </tbody>
+        </table>
+        <p class="last-updated">Last updated: <span class="timestamp">$_DateTool.format("MM/dd hh:mm a", $apiBlockData.lastModified.time)</span></p>
+    </div>
+#end
+#macro ( renderLeaderboardRow $hash )
+    <tr>
+        <td>$hash.year</td>
+        <td>$_NumberTool.currency($hash.amount)</td>
+        <td>$hash.participation</td>
+    </tr>
+#end

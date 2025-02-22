@@ -5,6 +5,7 @@ Thanks for visiting this repo. Mentioned in the February 19, 2025 Cascade User C
 -   Example files: these are the snippets of Velocity shown in the presentation deck
     -   `_datalayer.vm` set up as a standalone configuration that can be imported in other scripts
     -   `hashmap.vm` review of hashmap methods and syntax styles. More methods are covered here than time allowed for in the conference talk. Take a look at the deep copy macros and use of `hashCode()` for comparing shallow and deep copies.
+    -   `leaderboard-macros.vm` shows an approach to sorting custom objects with `$_SortTool` and the importance of casting values to consistent data types
     -   `multiple-params-vs-map.vm` shows two approaches to passing parameters to macros
     -   `serializer-json-output.json` sample output for reference
 -   Downloads
